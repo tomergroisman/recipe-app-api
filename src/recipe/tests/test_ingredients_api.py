@@ -33,7 +33,7 @@ class PublicIngredientsApiTests(TestCase):
 
 
 class PrivateIngredientsApiTests(TestCase):
-    """Private tags api tests (authenticated)"""
+    """Private ingredients api tests (authenticated)"""
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(**MOCKED_USER)
@@ -54,7 +54,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_tags_limited_to_user(self):
+    def test_ingredients_limited_to_user(self):
         """should test that the retrived tags are for the authenticated user"""
         user = get_user_model().objects.create_user('test@gmail.com', '123456')
         Ingredient.objects.create(user=user, name='Diary')
@@ -66,7 +66,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['name'], ingredient.name)
 
-    def test_create_tag_successfull(self):
+    def test_create_ingredient_successfull(self):
         """should create a new tag for authenticated user"""
         payload = {'name': 'Test Tag'}
 
@@ -80,7 +80,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertTrue(is_exists)
 
-    def test_create_tag_invalid(self):
+    def test_create_ingredient_invalid(self):
         """should create a new tag for authenticated user"""
         payload = {'name': ''}
 

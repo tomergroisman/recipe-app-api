@@ -40,7 +40,7 @@ class PrivateClassApiTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def test_retrive_tags(self):
+    def test_retrive_tag_list(self):
         """should retrive user's tag list"""
         Tag.objects.create(user=self.user, name='Vegan')
         Tag.objects.create(user=self.user, name='Mexican')
