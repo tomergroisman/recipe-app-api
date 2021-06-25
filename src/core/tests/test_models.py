@@ -8,6 +8,14 @@ def create_mock_user(email='test@example.com', password='test123'):
     return get_user_model().objects.create_user(email, password)
 
 
+def create_mock_tag(user, name):
+    return models.Tag.objects.create(user=user, name=name)
+
+
+def create_mock_ingredient(user, name):
+    return models.Ingredient.objects.create(user=user, name=name)
+
+
 class ModelTests(TestCase):
 
     def test_create_user_with_email_successful(self):
@@ -76,3 +84,28 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(ingredient), ingredient.name)
+
+    def test_recipe_str(self):
+        """should test the recipe string representation"""
+        user = create_mock_user()
+        # tags = [
+        #     create_mock_tag(user, 'Meat'),
+        #     create_mock_tag(user, 'Traditional'),
+        # ]
+        # ingredients = [
+        #     create_mock_ingredient(user, 'Steak'),
+        #     create_mock_ingredient(user, 'Mushroom'),
+        #     create_mock_ingredient(user, 'Onion'),
+        # ]
+        mock_recipe = {
+            'title': 'Mushroom Steak',
+            'user': user,
+            'preperation_time': 90,
+            'price': 100,
+            # 'tags': tags,
+            # 'ingredients': ingredients,
+        }
+
+        recipe = models.Recipe.objects.create(**mock_recipe)
+
+        self.assertEqual(str(recipe), mock_recipe['title'])
