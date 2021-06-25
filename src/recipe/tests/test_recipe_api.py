@@ -6,8 +6,11 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Recipe
+from core.tests.test_models import (
+    create_mock_tag, create_mock_ingredient, create_mock_recipe
+)
 
-from recipe.serializers import RecipeSerializer
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 
 MOCKED_USER = {
@@ -19,15 +22,9 @@ MOCKED_USER = {
 RECIPES_URL = reverse('recipe:recipe-list')
 
 
-def create_mock_recipe(user, **params):
-    mock_recipe = {
-        'title': 'Mock Recipe',
-        'preperation_time': 5,
-        'price': 10.5,
-    }
-    mock_recipe.update(params)
-
-    return Recipe.objects.create(user=user, **mock_recipe)
+def get_detail_recipe_url(recipe_id):
+    """Return the recipe detail url"""
+    return reverse('recipe:recipe-detail', args=[recipe_id])
 
 
 class PublicRecipeApiTests(TestCase):
@@ -52,7 +49,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_retrive_recipe_list(self):
-        """should retrive user's ingredient list"""
+        """should retrive user's recipe list"""
         create_mock_recipe(self.user)
         create_mock_recipe(self.user)
 
@@ -65,7 +62,9 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_recipes_limited_to_user(self):
-        """should test that the retrived tags are for the authenticated user"""
+        """
+        should test that the retrived recipes are for the authenticated user
+        """
         user = get_user_model().objects.create_user('test@gmail.com', '123456')
 
         create_mock_recipe(user)
@@ -78,4 +77,18 @@ class PrivateIngredientsApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_review_recipe_detail(self):
+        """should test detailed view of a recipe"""
+        recipe = create_mock_recipe(self.user)
+        recipe.tags.add(create_mock_tag(self.user, 'Meat'))
+        recipe.ingredients.add(create_mock_ingredient(self.user, 'Steak'))
+
+        url = get_detail_recipe_url(recipe.id)
+        res = self.client.get(url)
+
+        serializer = RecipeDetailSerializer(recipe)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)

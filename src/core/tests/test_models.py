@@ -9,11 +9,25 @@ def create_mock_user(email='test@example.com', password='test123'):
 
 
 def create_mock_tag(user, name):
+    """Create and return a mock tag"""
     return models.Tag.objects.create(user=user, name=name)
 
 
 def create_mock_ingredient(user, name):
+    """Create and return a mock ingredient"""
     return models.Ingredient.objects.create(user=user, name=name)
+
+
+def create_mock_recipe(user, **params):
+    """Create and return a mock recipe"""
+    mock_recipe = {
+        'title': 'Mock Recipe',
+        'preperation_time': 5,
+        'price': 10.5,
+    }
+    mock_recipe.update(params)
+
+    return models.Recipe.objects.create(user=user, **mock_recipe)
 
 
 class ModelTests(TestCase):
@@ -88,22 +102,11 @@ class ModelTests(TestCase):
     def test_recipe_str(self):
         """should test the recipe string representation"""
         user = create_mock_user()
-        # tags = [
-        #     create_mock_tag(user, 'Meat'),
-        #     create_mock_tag(user, 'Traditional'),
-        # ]
-        # ingredients = [
-        #     create_mock_ingredient(user, 'Steak'),
-        #     create_mock_ingredient(user, 'Mushroom'),
-        #     create_mock_ingredient(user, 'Onion'),
-        # ]
         mock_recipe = {
             'title': 'Mushroom Steak',
             'user': user,
             'preperation_time': 90,
             'price': 100,
-            # 'tags': tags,
-            # 'ingredients': ingredients,
         }
 
         recipe = models.Recipe.objects.create(**mock_recipe)

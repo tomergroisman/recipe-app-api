@@ -26,7 +26,7 @@ class PublicIngredientsApiTests(TestCase):
         self.client = APIClient()
 
     def test_login_required(self):
-        """should fail to retrive tags due to login require"""
+        """should fail to retrive ingredients due to login require"""
         res = self.client.get(INGREDIENTS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -55,7 +55,10 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_ingredients_limited_to_user(self):
-        """should test that the retrived tags are for the authenticated user"""
+        """
+        should test that the retrived ingredients
+        are for the authenticated user
+        """
         user = get_user_model().objects.create_user('test@gmail.com', '123456')
         Ingredient.objects.create(user=user, name='Diary')
         ingredient = Ingredient.objects.create(user=self.user, name='Fish')
@@ -67,7 +70,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.data[0]['name'], ingredient.name)
 
     def test_create_ingredient_successfull(self):
-        """should create a new tag for authenticated user"""
+        """should create a new ingredient for authenticated user"""
         payload = {'name': 'Test Tag'}
 
         res = self.client.post(INGREDIENTS_URL, payload)
@@ -81,7 +84,7 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertTrue(is_exists)
 
     def test_create_ingredient_invalid(self):
-        """should create a new tag for authenticated user"""
+        """should fail to create new ingredient for authenticated user"""
         payload = {'name': ''}
 
         res = self.client.post(INGREDIENTS_URL, payload)

@@ -81,7 +81,7 @@ class PrivateClassApiTests(TestCase):
         self.assertTrue(is_exists)
 
     def test_create_tag_invalid(self):
-        """should create a new tag for authenticated user"""
+        """should fail to create new tag for authenticated user"""
         payload = {'name': ''}
 
         res = self.client.post(TAGS_URL, payload)
