@@ -92,3 +92,61 @@ class PrivateIngredientsApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_recipe(self):
+        """should create a basic recipe (no tags or ingredients)"""
+        mock_recipe = {
+            'title': 'Cheese Cake',
+            'price': 10,
+            'preperation_time': 25,
+        }
+
+        res = self.client.post(RECIPES_URL, mock_recipe)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        for key in mock_recipe.keys():
+            self.assertEqual(mock_recipe[key], getattr(recipe, key))
+
+    def test_create_recipe_with_tags(self):
+        """should create a recipe with tags"""
+        tag1 = create_mock_tag(self.user, 'Vegan')
+        tag2 = create_mock_tag(self.user, 'Desert')
+        mock_recipe = {
+            'title': 'Vegan Cheese Cake',
+            'price': 12,
+            'preperation_time': 60,
+            'tags': [tag1.id, tag2.id]
+        }
+
+        res = self.client.post(RECIPES_URL, mock_recipe)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+        tags = recipe.tags.all()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_recipe_with_ingredients(self):
+        """should create a recipe with ingredients"""
+        ingredient1 = create_mock_ingredient(self.user, 'Corn')
+        ingredient2 = create_mock_ingredient(self.user, 'Ginger')
+        mock_recipe = {
+            'title': 'Corny Ginger',
+            'price': 2,
+            'preperation_time': 10,
+            'ingredients': [ingredient1.id, ingredient2.id]
+        }
+
+        res = self.client.post(RECIPES_URL, mock_recipe)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+        ingredients = recipe.ingredients.all()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ingredients.count(), 2)
+        self.assertIn(ingredient1, ingredients)
+        self.assertIn(ingredient2, ingredients)
