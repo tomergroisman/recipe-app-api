@@ -10,17 +10,17 @@ def create_mock_user(email='test@example.com', password='test123'):
     return get_user_model().objects.create_user(email, password)
 
 
-def create_mock_tag(user, name):
+def create_mock_tag(user, name) -> models.Tag:
     """Create and return a mock tag"""
     return models.Tag.objects.create(user=user, name=name)
 
 
-def create_mock_ingredient(user, name):
+def create_mock_ingredient(user, name) -> models.Ingredient:
     """Create and return a mock ingredient"""
     return models.Ingredient.objects.create(user=user, name=name)
 
 
-def create_mock_recipe(user, **params):
+def create_mock_recipe(user, **params) -> models.Recipe:
     """Create and return a mock recipe"""
     mock_recipe = {
         'title': 'Mock Recipe',
