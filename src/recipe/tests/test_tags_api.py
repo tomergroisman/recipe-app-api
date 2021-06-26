@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Tag
+from core.tests.test_models import create_mock_recipe, create_mock_tag
 
 from recipe.serializers import TagSerializer
 
@@ -87,3 +88,33 @@ class PrivateClassApiTests(TestCase):
         res = self.client.post(TAGS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrive_tags_assigned_to_recipe(self):
+        """should filter tags that assigned to recipe"""
+        assigned_tag = create_mock_tag(user=self.user, name='Mexican')
+        unassigned_tag = create_mock_tag(user=self.user, name='Italian')
+
+        recipe = create_mock_recipe(user=self.user)
+        recipe.tags.add(assigned_tag)
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+
+        assigned_serializer = TagSerializer(assigned_tag)
+        unassigned_serializer = TagSerializer(unassigned_tag)
+
+        self.assertIn(assigned_serializer.data, res.data)
+        self.assertNotIn(unassigned_serializer.data, res.data)
+
+    def test_retrive_tags_assigned_unique(self):
+        """should filter unique tags that assigned to recipe"""
+        tag = create_mock_tag(user=self.user, name='Mexican')
+        create_mock_tag(user=self.user, name='Italian')
+
+        recipe1 = create_mock_recipe(user=self.user)
+        recipe2 = create_mock_recipe(user=self.user)
+        recipe1.tags.add(tag)
+        recipe2.tags.add(tag)
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)
