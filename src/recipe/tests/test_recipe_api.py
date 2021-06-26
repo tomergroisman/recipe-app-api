@@ -150,3 +150,35 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(ingredients.count(), 2)
         self.assertIn(ingredient1, ingredients)
         self.assertIn(ingredient2, ingredients)
+
+    def test_partial_update_recipe(self):
+        """should update a recipe with patch"""
+        recipe = create_mock_recipe(user=self.user)
+        update = {'title': 'New Test Title!'}
+
+        url = get_detail_recipe_url(recipe.id)
+        res = self.client.patch(url, update)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(recipe.title, update['title'])
+
+    def test_full_update_recipe(self):
+        """should update a recipe with put"""
+        recipe = create_mock_recipe(user=self.user)
+        update = {
+            'title': 'New Test Title!',
+            'preperation_time': 100,
+            'price': 500,
+        }
+
+        url = get_detail_recipe_url(recipe.id)
+        res = self.client.put(url, update)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(recipe.title, update['title'])
+        self.assertEqual(recipe.preperation_time, update['preperation_time'])
+        self.assertEqual(recipe.price, update['price'])
